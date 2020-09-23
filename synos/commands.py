@@ -12,10 +12,10 @@ class Command:
 
 	async def pre_execute(self, args, message):
 		if len(args) < len(self.args):
-			await message.channel.send("At least " + str(len(self.args)) + " arguments requested. Got " + str(len(args)) + ".")
+			await message.channel.send("At least " + str(len(self.args)) + " argument(s) requested. Got " + str(len(args)) + ".")
 			return True
 		if len(args) > len(self.args) + len(self.optargs):
-			await message.channel.send("A maximum of " + str(len(self.args) + len(self.optargs)) + " arguments requested. Got " + str(len(args)) + ".")
+			await message.channel.send("A maximum of " + str(len(self.args) + len(self.optargs)) + " argument(s) requested. Got " + str(len(args)) + ".")
 			return True
 
 		return False
@@ -42,6 +42,9 @@ class Command:
 class ServerCommand(Command):
 	pass
 
+class ChannelCommand(Command):
+	pass
+
 ######################"
 
 
@@ -61,6 +64,25 @@ class CommandHelp(ServerCommand):
 
 		for command in context.commands:
 			string = string + context.prefix + "bot " + command.usage_str() + "\n\t" + command.desc + "\n\n"
+
+		await message.channel.send(string)
+
+class HelpCommand(ChannelCommand):
+	def __init__(self):
+		Command.__init__(self)
+		self.keyword = "help"
+		self.args = []
+		self.desc = "Display help"
+
+	async def execute(self, args, message, context):
+		status = await self.pre_execute(args, message)
+		if status:
+			return
+
+		string = ""
+
+		for command in context.commands:
+			string = string + context.serverContext.prefix + command.usage_str() + "\n\t" + command.desc + "\n\n"
 
 		await message.channel.send(string)
 

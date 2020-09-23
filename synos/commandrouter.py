@@ -9,8 +9,5 @@ class CommandRouter:
 		hash_id = hash(message.guild)
 		if not hash_id in self.servers:
 			self.servers[hash_id] = ServerContext(message.guild)
-
-		if message.author == self.client.user:
-			return
 		
-		await self.servers[hash_id].treat(message)
+		await self.servers[hash_id].treat(message, self.client.user)
