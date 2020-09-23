@@ -9,20 +9,20 @@ config_file = configparser.ConfigParser()
 config_file.read("cfg/config.ini")
 token = config_file["PRIVATE"]["Token"]
 
-dispatcher = None
+router = None
 
 @client.event
 async def on_ready():
-	global dispatcher
+	global router
 	print('Logged in as {0.user}'.format(client))
 
-	# this object will dispatch commands depending on the server and channel
-	dispatcher = synos.CommandDispatcher(client)
+	# this object will route commands depending on the server and channel
+	router = synos.CommandRouter(client)
 
 @client.event
 async def on_message(message):
-	global dispatcher
-	await dispatcher.dispatch(message)
+	global router
+	await router.treat(message)
 
 # token defined in cfg/config.ini
 if token != "":

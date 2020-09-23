@@ -1,1 +1,1 @@
-from .commanddispatcher import CommandDispatcher
+from .commandrouter import CommandRouter
