@@ -63,3 +63,23 @@ class CommandHelp(ServerCommand):
 			string = string + context.prefix + "bot " + command.usage_str() + "\n\t" + command.desc + "\n\n"
 
 		await message.channel.send(string)
+
+class SetPrefixCommand(ServerCommand):
+	def __init__(self):
+		Command.__init__(self)
+		self.keyword = "setprefix"
+		self.args = [CommandArgument("new prefix", "")]
+		self.desc = "Change the bot prefix"
+
+	async def execute(self, args, message, context):
+		status = await self.pre_execute(args, message)
+		if status:
+			return
+		if len(args[0]) != 1:
+			await message.channel.send("Prefix should be 1 character long")
+		elif args[0].isalnum():
+			await message.channel.send("Prefix cannot be alphanumerical")
+		else:
+			context.prefix = args[0]
+			await message.channel.send('Changed the prefix to ' + context.prefix)
+			#todo: save this data for reboots
