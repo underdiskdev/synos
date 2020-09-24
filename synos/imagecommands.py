@@ -3,7 +3,7 @@ import discord
 import aiohttp
 import os
 import shutil
-from PIL import Image, ImageDraw, ImageFilter, ImageFont, ImageEnhance
+from PIL import Image, ImageDraw, ImageFilter, ImageFont, ImageEnhance, ImageOps
 
 class ImageChannelCommand(ChannelCommand):
 	async def download_image(self, hash_id, context):
@@ -100,3 +100,33 @@ class BlurCommand(ImageChannelCommand):
 
 		else:
 			await message.channel.send("Error: Can only blur images (jpeg or png)")
+
+class InvertCommand(ImageChannelCommand):
+	def __init__(self):
+		Command.__init__(self)
+		self.keyword = "invert"
+		self.args = []
+		self.desc = "Invert the colors of an image"
+
+	async def execute(self, args, message, context):
+		status = await self.pre_execute(args, message)
+		if status:
+			return
+
+		if context.last_url.endswith(".jpg") or context.last_url.endswith(".jpeg") or context.last_url.endswith(".png"):
+			image_path = await self.download_image(hash(message.channel), context)
+			
+			image = Image.open(image_path)
+			image = image.convert("RGB")
+			try:
+				image2 = ImageOps.invert(image)
+				image2.save(image_path, "PNG")
+			except Exception as e:
+				await message.channel.send("Error: " + str(e))
+
+			await message.channel.send(file=discord.File(image_path))
+			if os.path.exists(image_path):
+  				os.remove(image_path)
+
+		else:
+			await message.channel.send("Error: Can only invert images (jpeg or png)")
